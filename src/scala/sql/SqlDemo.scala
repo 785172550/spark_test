@@ -81,4 +81,34 @@ class SqlDemo {
 
     spark.close()
   }
+
+  def jdbcDemo(df: DataFrame): Unit = {
+
+    val tableName = "hah"
+    val cols = df.columns
+    val sql = s"insert into ${tableName} values()"
+    df.foreachPartition(par => {
+
+      val conn: java.sql.Connection = _
+      conn.setAutoCommit(false)
+      val pre = conn.prepareStatement("")
+
+      par.foreach { record =>
+        for (i <- 1 to cols.length) {
+          val dataType = columnDataType(i - 1)
+          dataType match {
+            case _: StructType => pre.setString(i, record.getAs[String](i - 1))
+            case _: IntegerType => pre.setInt(i, record.getAs[Int](i - 1))
+          }
+        }
+        pre.addBatch()
+      }
+
+      pre.executeBatch()
+      conn.commit()
+      pre.close()
+      conn.close()
+    })
+
+  }
 }
