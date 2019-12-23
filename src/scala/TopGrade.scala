@@ -20,7 +20,7 @@ object TopGrade {
     val spark = SparkSession.builder()
       .appName("topGrade")
       .master("local[*]")
-      .config("spark.sql.warehouse.dir", "file:///C:/temp") // only on windows
+//      .config("spark.sql.warehouse.dir", "file:///C:/temp") // only on windows
       .getOrCreate()
 
     //    val lines = spark.sparkContext.textFile("./src/resources/students.csv")
@@ -31,6 +31,7 @@ object TopGrade {
     import spark.implicits._
     val df = lines.map(parseLine).toDF()
     val topGrade = df.agg(max("score")).collect()
+
 
     topGrade.foreach(println)
 
